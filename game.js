@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score-board');
+const instructionsElement = document.getElementById('instructions');
 
 // Game Constants
 canvas.width = 1000; // Increased width
@@ -207,6 +208,7 @@ function resetGame() {
     dino.x = 50;
     dino.y = GROUND_Y - dino.height;
     dino.dy = 0;
+    instructionsElement.style.display = 'block'; // Show instructions on restart
     animate();
 }
 
@@ -257,6 +259,7 @@ window.addEventListener('keydown', (e) => {
     keys[e.code] = true;
     if (e.code === 'Space') {
         if (gameActive) {
+            instructionsElement.style.display = 'none'; // Hide instructions when jumping/playing
             dino.jump();
         } else {
             resetGame();
