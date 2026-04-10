@@ -15,8 +15,36 @@ const MOVE_SPEED = 5;
 let score = 0;
 let gameActive = true;
 let obstacles = [];
+let clouds = [];
 let frameCount = 0;
 let keys = {}; // Track pressed keys
+
+class Cloud {
+    constructor() {
+        this.x = canvas.width + Math.random() * 200;
+        this.y = 30 + Math.random() * 100;
+        this.speed = 0.2 + Math.random() * 0.5;
+        this.size = 20 + Math.random() * 30;
+    }
+
+    draw() {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.x + this.size * 0.6, this.y - this.size * 0.4, this.size * 0.8, 0, Math.PI * 2);
+        ctx.arc(this.x + this.size * 1.2, this.y, this.size * 0.9, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    update() {
+        this.x -= this.speed;
+        if (this.x + this.size * 2 < 0) {
+            this.x = canvas.width + this.size;
+            this.y = 30 + Math.random() * 100;
+        }
+        this.draw();
+    }
+}
 
 const dino = {
     x: 50,
@@ -182,13 +210,32 @@ function resetGame() {
     animate();
 }
 
+function drawBackground() {
+    // Sky Gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#87CEEB'); // Sky Blue
+    gradient.addColorStop(1, '#E0F6FF'); // Light Cyan
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Clouds
+    clouds.forEach(cloud => cloud.update());
+
+    // Draw Ground (Background part)
+    ctx.fillStyle = '#e0e0e0';
+    ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+}
+
 function animate() {
     if (!gameActive) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Ground
+    drawBackground();
+
+    // Draw Ground Line
     ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, GROUND_Y);
     ctx.lineTo(canvas.width, GROUND_Y);
@@ -220,6 +267,11 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
     keys[e.code] = false;
 });
+
+// Initialize Clouds
+for(let i = 0; i < 5; i++) {
+    clouds.push(new Cloud());
+}
 
 // Start Game
 animate();
