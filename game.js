@@ -3,34 +3,65 @@ const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score-board');
 
 // Game Constants
-canvas.width = 800;
-canvas.height = 200;
+canvas.width = 1000; // Increased width
+canvas.height = 400; // Increased height
 
 const GRAVITY = 0.6;
 const JUMP_FORCE = -12;
 const GROUND_Y = canvas.height - 30;
+const MOVE_SPEED = 5;
 
 // Game State
 let score = 0;
 let gameActive = true;
 let obstacles = [];
 let frameCount = 0;
+let keys = {}; // Track pressed keys
 
 const dino = {
     x: 50,
     y: GROUND_Y - 40,
     width: 40,
     height: 40,
+    dx: 0, // Horizontal velocity
     dy: 0,
     jumped: false,
     color: '#4CAF50', // Green Dino
     
     draw() {
+        // Draw Body
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        // Draw Eyes
+        ctx.fillStyle = 'white';
+        // Left eye
+        ctx.fillRect(this.x + 25, this.y + 5, 8, 8);
+        // Right eye
+        ctx.fillRect(this.x + 33, this.y + 5, 4, 8);
+
+        // Draw Pupils
+        ctx.fillStyle = 'black';
+        ctx.fillRect(this.x + 29, this.y + 7, 3, 3);
+        ctx.fillRect(this.x + 35, this.y + 7, 2, 2);
     },
 
     update() {
+        // Horizontal Movement
+        if (keys['ArrowLeft']) {
+            this.dx = -MOVE_SPEED;
+        } else if (keys['ArrowRight']) {
+            this.dx = MOVE_SPEED;
+        } else {
+            this.dx = 0;
+        }
+
+        this.x += this.dx;
+
+        // Boundary Checks
+        if (this.x < 0) this.x = 0;
+        if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+
         // Apply Gravity
         this.dy += GRAVITY;
         this.y += this.dy;
@@ -87,13 +118,11 @@ function checkCollisions() {
         const obs = obstacles[i];
 
         // Collision Detection Logic
-        // Check if dino is within the horizontal bounds of the rock
         if (
             dino.x < obs.x + obs.width &&
             dino.x + dino.width > obs.x
         ) {
             // 1. LAND ON ROCK (+2 points)
-            // If dino's feet are at the top of the rock and he is falling/landing
             if (
                 dino.y + dino.height <= obs.y + 10 && 
                 dino.y + dino.height >= obs.y - 5 &&
@@ -101,20 +130,17 @@ function checkCollisions() {
             ) {
                 score += 2;
                 updateScore();
-                // Remove rock so we don't trigger multiple scores or death
                 obstacles.splice(i, 1);
                 continue;
             }
 
             // 2. COLLIDE WITH SIDE (LOSE)
-            // If dino hits the side of the rock (not on top)
             if (dino.y + dino.height > obs.y + 5) {
                 gameOver();
             }
         }
 
         // 3. JUMP OVER (+1 point)
-        // If the rock has passed the dino's X position and hasn't been scored yet
         if (!obs.passed && obs.x + obs.width < dino.x) {
             score += 1;
             obs.passed = true;
@@ -150,6 +176,7 @@ function resetGame() {
     obstacles = [];
     frameCount = 0;
     gameActive = true;
+    dino.x = 50;
     dino.y = GROUND_Y - dino.height;
     dino.dy = 0;
     animate();
@@ -180,6 +207,7 @@ function animate() {
 
 // Input Handling
 window.addEventListener('keydown', (e) => {
+    keys[e.code] = true;
     if (e.code === 'Space') {
         if (gameActive) {
             dino.jump();
@@ -187,6 +215,10 @@ window.addEventListener('keydown', (e) => {
             resetGame();
         }
     }
+});
+
+window.addEventListener('keyup', (e) => {
+    keys[e.code] = false;
 });
 
 // Start Game
