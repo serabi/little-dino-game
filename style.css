@@ -1,38 +1,12 @@
-body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
-    font-family: 'Courier New', Courier, monospace;
-}
+# 1. Initialize a new local git repository
+git init
 
-#game-container {
-    position: relative;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
-}
+# 2. Add all your files to the staging area
+git add .
 
-#score-board {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
+# 3. Create your first commit
+git commit -m "Initial commit: Dino Rock Jump game"
 
-#instructions {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    text-align: center;
-    color: #777;
-}
-
-canvas {
-    background-color: #fff;
-    display: block;
-    border: 2px solid #333;
-}
+# 4. Use the GitHub CLI to create the remote repository on GitHub
+# This will create a private or public repo named 'little-dino-jumps'
+gh repo create little-dino-jumps --public --source=. --remote=origin --push
